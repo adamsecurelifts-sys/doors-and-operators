@@ -1,0 +1,3 @@
+import { currentUser } from '@/lib/auth';
+import CartCheckout from '@/components/cart-checkout';
+export default async function Cart(){const user=await currentUser();return <main className="wrap section"><a href="/">← Continue shopping</a><h1>Your cart</h1><p className="muted">Cart contents are stored in this browser for the MVP.</p><CartCheckout signedIn={Boolean(user)} creditApproved={Boolean(user?.creditTermsApproved)}/><section className="card" style={{marginTop:20}}><h2>Payment notes</h2><p>Online card payments are disabled until a provider is configured. Bank transfer details must be set by the business before accepting transfers.</p><p className="small muted">No card data is collected or processed.</p></section></main>}

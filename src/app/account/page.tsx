@@ -1,0 +1,3 @@
+import { currentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+export default async function Account(){const user=await currentUser();if(!user)redirect('/login');return <main className="wrap section"><a href="/">← Store</a><h1>Welcome, {user.name}</h1><p className="notice">Account status: {user.status}. Credit terms: {user.creditTermsApproved?'approved':'not approved'}.</p><h2>Your orders</h2><p className="muted">Order history appears here as orders are placed.</p><form action="/api/logout" method="post"><button className="button secondary">Sign out</button></form></main>}

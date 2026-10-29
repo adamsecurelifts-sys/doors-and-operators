@@ -1,0 +1,5 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { db } from '@/lib/db';
+import { createSession, passwordMatches } from '@/lib/auth';
+export async function POST(req:Request){const f=await req.formData();const parsed=z.object({email:z.string().email().max(190),password:z.string().min(1).max(128)}).safeParse({email:f.get('email'),password:f.get('password')});if(!parsed.success)return NextResponse.redirect(new URL('/login?error=1',req.url),303);const [rows]=await db().execute<any[]>('SELECT id,email,password_hash,contact_name,company_name,role,status,credit_terms_approved AS creditTermsApproved FROM users WHERE email=? LIMIT 1',[parsed.data.email.toLowerCase()]);const u=rows[0];if(!u||u.status!=='active'||!await passwordMatches(parsed.data.password,u.password_hash))return NextResponse.redirect(new URL('/login?error=1',req.url),303);await createSession({id:u.id,email:u.email,name:u.company_name||u.contact_name,role:u.role,status:u.status,creditTermsApproved:Boolean(u.creditTermsApproved)});return NextResponse.redirect(new URL(u.role==='admin'||u.role==='warehouse'?'/admin':'/account',req.url),303)}

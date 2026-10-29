@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.env*
+!.env.example
+*.zip
+npm-debug.log*
+
+/work/
+/outputs/
