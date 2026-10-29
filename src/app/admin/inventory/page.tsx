@@ -1,2 +1,11 @@
-import {currentUser} from '@/lib/auth';import {redirect} from 'next/navigation';import {db} from '@/lib/db';
-export const dynamic='force-dynamic';export default async function Inventory(){const u=await currentUser();if(!u||!['admin','warehouse'].includes(u.role))redirect('/login');let rows:any[]=[];try{[rows]=await db().query<any[]>(`SELECT w.name warehouse,p.sku,p.name product,b.quantity,b.reserved_quantity FROM inventory_balances b JOIN warehouses w ON w.id=b.warehouse_id JOIN products p ON p.id=b.product_id ORDER BY w.name,p.name`)}catch{}return <main className="wrap section"><a href="/admin">← Dashboard</a><h1>Warehouse inventory</h1><p className="muted">Stock is reserved in the order transaction. Use verified receiving/adjustment procedures before making stock available.</p><table className="table"><thead><tr><th>Warehouse</th><th>SKU</th><th>Product</th><th>On hand</th><th>Reserved</th><th>Available</th></tr></thead><tbody>{rows.map((r,i)=><tr key={i}><td>{r.warehouse}</td><td>{r.sku}</td><td>{r.product}</td><td>{r.quantity}</td><td>{r.reserved_quantity}</td><td>{r.quantity-r.reserved_quantity}</td></tr>)}</tbody></table></main>}
+import { currentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import InventoryManager from './inventory-manager';
+
+export const dynamic='force-dynamic';
+
+export default async function Inventory(){
+  const user=await currentUser();
+  if(!user||!['admin','warehouse'].includes(user.role))redirect('/admin/login');
+  return <main className="wrap section"><a href="/admin">← Dashboard</a><div className="sectionhead" style={{marginTop:20}}><div><div className="eyebrow" style={{color:'var(--green)'}}>Warehouse operations</div><h1>Inventory</h1></div><span className="muted">Receive stock and make audited adjustments</span></div><InventoryManager/></main>;
+}

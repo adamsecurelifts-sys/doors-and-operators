@@ -1,2 +1,15 @@
-import {currentUser} from '@/lib/auth';import {redirect} from 'next/navigation';import {db} from '@/lib/db';
-export const dynamic='force-dynamic';export default async function Orders(){const u=await currentUser();if(!u||!['admin','warehouse'].includes(u.role))redirect('/login');let rows:any[]=[];try{[rows]=await db().query<any[]>(`SELECT order_number,company_name,status,payment_method,payment_status,total,created_at FROM orders ORDER BY id DESC LIMIT 100`)}catch{}return <main className="wrap section"><a href="/admin">← Dashboard</a><h1>Orders & fulfillment</h1><table className="table"><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Payment</th><th>Total</th></tr></thead><tbody>{rows.map(r=><tr key={r.order_number}><td>{r.order_number}</td><td>{r.company_name}</td><td>{r.status}</td><td>{r.payment_method} · {r.payment_status}</td><td>${Number(r.total).toFixed(2)}</td></tr>)}</tbody></table></main>}
+import { currentUser } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import OrderManager from './order-manager';
+
+export const dynamic = 'force-dynamic';
+
+export default async function Orders() {
+  const user = await currentUser();
+  if (!user || !['admin','warehouse'].includes(user.role)) redirect('/admin/login');
+  return <main className="wrap section">
+    <a href="/admin">← Dashboard</a>
+    <div className="sectionhead" style={{ marginTop: 20 }}><div><div className="eyebrow" style={{ color: 'var(--green)' }}>Store operations</div><h1>Orders & fulfillment</h1></div><span className="muted">Review requests, pick, pack, ship, and record verified payments</span></div>
+    <OrderManager canManagePayments={user.role === 'admin'} />
+  </main>;
+}

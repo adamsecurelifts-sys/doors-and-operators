@@ -4,6 +4,7 @@ node_modules/
 !.env.example
 *.zip
 npm-debug.log*
+*.tsbuildinfo
 
 /work/
 /outputs/
